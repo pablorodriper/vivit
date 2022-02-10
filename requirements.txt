@@ -1,0 +1,9 @@
+huggingface_hub
+imageio
+ipython
+ipywidgets
+jiwer
+matplotlib
+medmnist
+numpy
+pandas
