@@ -1,7 +1,6 @@
+gradio
 huggingface_hub
-imageio
 ipython
-ipywidgets
 jiwer
 matplotlib
 medmnist
