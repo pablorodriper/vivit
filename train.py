@@ -43,6 +43,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
+import dvc.api
 
 from huggingface_hub import push_to_hub_keras
 
@@ -57,19 +58,27 @@ The hyperparameters are chosen via hyperparameter
 search. You can learn more about the process in the "conclusion" section.
 """
 
+# Load DVC params
+params = dvc.api.params_show(stages="train")
+
+# Setting seed for reproducibility
+SEED = params["common"]["seed"]
+os.environ["TF_CUDNN_DETERMINISTIC"] = "1"
+keras.utils.set_random_seed(SEED)
+
 # DATA
 DATASET_NAME = "organmnist3d"
-BATCH_SIZE = 32
+BATCH_SIZE = params["train"]["batch_size"]
 AUTO = tf.data.AUTOTUNE
 INPUT_SHAPE = (28, 28, 28, 1)
-NUM_CLASSES = 11
+NUM_CLASSES = params["model"]["num_classes"]
 
 # OPTIMIZER
-LEARNING_RATE = 1e-4
-WEIGHT_DECAY = 1e-5
+LEARNING_RATE = params["train"]["learning_rate"]
+WEIGHT_DECAY = params["train"]["weight_decay"]
 
 # TRAINING
-EPOCHS = 80
+EPOCHS = params["train"]["epochs"]
 
 # TUBELET EMBEDDING
 PATCH_SIZE = (8, 8, 8)
@@ -312,7 +321,7 @@ def create_vivit_classifier(
 """
 
 
-def run_experiment():
+def run_experiment(trainloader, validloader, testloader):
     # Initialize model
     model = create_vivit_classifier(
         tubelet_embedder=TubeletEmbedding(
@@ -343,6 +352,7 @@ def run_experiment():
     return model
 
 if __name__ == "__main__":
+
     # Get the metadata of the dataset
     info = medmnist.INFO[DATASET_NAME]
 
@@ -356,6 +366,6 @@ if __name__ == "__main__":
     validloader = prepare_dataloader(valid_videos, valid_labels, "valid")
     testloader = prepare_dataloader(test_videos, test_labels, "test")
 
-    model = run_experiment()
+    model = run_experiment(trainloader, validloader, testloader)
 
-    push_to_hub_keras(model, "pablorodriper/vivit")
+    #push_to_hub_keras(model, "pablorodriper/vivit")
