@@ -33,10 +33,6 @@ This example requires TensorFlow 2.6 or higher, and the `medmnist`
 package, which can be installed by running the code cell below.
 """
 
-"""shell
-pip install -qq medmnist
-"""
-
 """
 ## Imports
 """
