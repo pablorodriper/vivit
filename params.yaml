@@ -1,0 +1,12 @@
+common:
+  seed: 42
+
+model:
+  model_path: models/vivit.h5
+  num_classes: 11
+
+train:
+  epochs: 80
+  batch_size: 32
+  learning_rate: 1e-4
+  weight_decay: 1e-5

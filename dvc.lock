@@ -1,0 +1,24 @@
+schema: '2.0'
+stages:
+  train:
+    cmd: python train.py
+    deps:
+    - path: train.py
+      md5: 322956063c821d2f76cd9a29c016fd34
+      size: 11697
+    params:
+      params.yaml:
+        common:
+          seed: 42
+        model:
+          model_path: models/vivit.h5
+          num_classes: 11
+        train:
+          epochs: 80
+          batch_size: 32
+          learning_rate: 0.0001
+          weight_decay: 1e-05
+    outs:
+    - path: models/vivit.h5
+      md5: 4a463bce7b3057eadbfb191e537fded5
+      size: 20434736

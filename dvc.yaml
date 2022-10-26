@@ -1,0 +1,11 @@
+stages:
+  train:
+    cmd: python train.py
+    deps:
+      - train.py
+    params:
+      - common
+      - model
+      - train
+    outs:
+      - ${model.model_path}
