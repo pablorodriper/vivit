@@ -33,27 +33,25 @@ This example requires TensorFlow 2.6 or higher, and the `medmnist`
 package, which can be installed by running the code cell below.
 """
 
-"""shell
-pip install -qq medmnist
-"""
-
 """
 ## Imports
 """
 
+import json
 import os
+
+import dvc.api
 import medmnist
 import numpy as np
 import tensorflow as tf
+from dotenv import load_dotenv
+from huggingface_hub import push_to_hub_keras
 from tensorflow import keras
 from tensorflow.keras import layers
 
-from huggingface_hub import push_to_hub_keras
-
-# Setting seed for reproducibility
-SEED = 42
-os.environ["TF_CUDNN_DETERMINISTIC"] = "1"
-keras.utils.set_random_seed(SEED)
+tf.config.experimental.enable_tensor_float_32_execution(False)
+for gpu in tf.config.experimental.list_physical_devices('GPU'):
+    tf.config.experimental.set_memory_growth(gpu, True)
 
 """
 ## Hyperparameters
@@ -62,19 +60,27 @@ The hyperparameters are chosen via hyperparameter
 search. You can learn more about the process in the "conclusion" section.
 """
 
+# Load DVC params
+params = dvc.api.params_show(stages="train")
+
+# Setting seed for reproducibility
+SEED = params["common"]["seed"]
+os.environ["TF_CUDNN_DETERMINISTIC"] = "1"
+keras.utils.set_random_seed(SEED)
+
 # DATA
 DATASET_NAME = "organmnist3d"
-BATCH_SIZE = 32
+BATCH_SIZE = params["train"]["batch_size"]
 AUTO = tf.data.AUTOTUNE
 INPUT_SHAPE = (28, 28, 28, 1)
-NUM_CLASSES = 11
+NUM_CLASSES = params["model"]["num_classes"]
 
 # OPTIMIZER
-LEARNING_RATE = 1e-4
-WEIGHT_DECAY = 1e-5
+LEARNING_RATE = params["train"]["learning_rate"]
+WEIGHT_DECAY = params["train"]["weight_decay"]
 
 # TRAINING
-EPOCHS = 80
+EPOCHS = params["train"]["epochs"]
 
 # TUBELET EMBEDDING
 PATCH_SIZE = (8, 8, 8)
@@ -317,7 +323,7 @@ def create_vivit_classifier(
 """
 
 
-def run_experiment():
+def run_experiment(trainloader, validloader, testloader):
     # Initialize model
     model = create_vivit_classifier(
         tubelet_embedder=TubeletEmbedding(
@@ -341,13 +347,41 @@ def run_experiment():
     # Train the model.
     _ = model.fit(trainloader, epochs=EPOCHS, validation_data=validloader)
 
+    # Save metrics
     _, accuracy, top_5_accuracy = model.evaluate(testloader)
+    with open(params["train"]["metrics_path"], 'w') as outfile:
+        json.dump({"Test accuracy": accuracy,
+                   "Test top 5 accuracy": top_5_accuracy}, 
+                   outfile)
+
     print(f"Test accuracy: {round(accuracy * 100, 2)}%")
     print(f"Test top 5 accuracy: {round(top_5_accuracy * 100, 2)}%")
 
     return model
 
+
+def push_model_to_hub(model):
+
+    load_dotenv()
+    token = os.getenv("HUGGINGFACE_TOKEN")
+    if token is None:
+        raise ValueError("HUGGINGFACE_TOKEN is not set")
+
+    # Push the model to the hub
+    if params["push_to_hub"]["feature_flag_push_to_hub"]:
+        print("Pushing model to the hub")
+        push_to_hub_keras(
+            model=model,
+            repo_name=params["push_to_hub"]["repo_name"],
+            use_auth_token=True,
+            token=token,
+        )
+    else:
+        print("Skipping push to hubs")
+
+
 if __name__ == "__main__":
+
     # Get the metadata of the dataset
     info = medmnist.INFO[DATASET_NAME]
 
@@ -361,6 +395,6 @@ if __name__ == "__main__":
     validloader = prepare_dataloader(valid_videos, valid_labels, "valid")
     testloader = prepare_dataloader(test_videos, test_labels, "test")
 
-    model = run_experiment()
+    model = run_experiment(trainloader, validloader, testloader)
 
-    push_to_hub_keras(model, "pablorodriper/vivit")
+    push_model_to_hub(model)
