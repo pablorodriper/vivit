@@ -7,5 +7,20 @@ stages:
       - common
       - model
       - train
-    outs:
-      - ${model.model_path}
+      - push_to_hub.repo_name
+    # outs:
+    #   - ${model.model_path}
+    metrics:
+      - ${train.metrics_path}:
+          cache: false
+    # plots:
+    #   - ${train.confusion_matrix_path}
+
+  # push_to_hub:
+  #   cmd: python push_to_hub.py
+  #   deps:
+  #     - push_to_hub.py
+  #     - ${model.model_path}
+  #   params:
+  #     - push_to_hub
+  #     - model.model_path

@@ -10,3 +10,8 @@ train:
   batch_size: 32
   learning_rate: 1e-4
   weight_decay: 1e-5
+  metrics_path: metrics/train.json
+  #confusion_matrix_path: plots/test_conf_matrix.png
+
+push_to_hub:
+  repo_name: pablorodriper/video-vision_transformer

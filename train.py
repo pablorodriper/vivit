@@ -44,11 +44,10 @@ import dvc.api
 import medmnist
 import numpy as np
 import tensorflow as tf
+from dotenv import load_dotenv
+from huggingface_hub import push_to_hub_keras
 from tensorflow import keras
 from tensorflow.keras import layers
-import dvc.api
-
-from huggingface_hub import push_to_hub_keras
 
 tf.config.experimental.enable_tensor_float_32_execution(False)
 for gpu in tf.config.experimental.list_physical_devices('GPU'):
@@ -348,16 +347,38 @@ def run_experiment(trainloader, validloader, testloader):
     # Train the model.
     _ = model.fit(trainloader, epochs=EPOCHS, validation_data=validloader)
 
+    # Save metrics
     _, accuracy, top_5_accuracy = model.evaluate(testloader)
     with open(params["train"]["metrics_path"], 'w') as outfile:
         json.dump({"Test accuracy": accuracy,
                    "Test top 5 accuracy": top_5_accuracy}, 
-                  outfile)
+                   outfile)
 
     print(f"Test accuracy: {round(accuracy * 100, 2)}%")
     print(f"Test top 5 accuracy: {round(top_5_accuracy * 100, 2)}%")
 
     return model
+
+
+def push_model_to_hub(model, repo_name):
+
+    load_dotenv()
+    token = os.getenv("HUGGINGFACE_TOKEN")
+    if token is None:
+        raise ValueError("HUGGINGFACE_TOKEN is not set")
+
+    # Push the model to the hub
+    if os.getenv("FF_PUSH_TO_HUB") == "1":
+        print("Pushing model to the hub")
+        push_to_hub_keras(
+            model=model,
+            repo_name=params["push_to_hub"]["repo_name"],
+            use_auth_token=True,
+            token=token,
+        )
+    else:
+        print("Skipping push to hubs")
+
 
 if __name__ == "__main__":
 
@@ -376,7 +397,4 @@ if __name__ == "__main__":
 
     model = run_experiment(trainloader, validloader, testloader)
 
-    # Save keras model to disk
-    model.save(params["model"]["model_path"])
-
-    #push_to_hub_keras(model, "pablorodriper/vivit")
+    push_model_to_hub(model, params["push_to_hub"]["repo_name"])

@@ -5,3 +5,4 @@ gradio
 opencv-python
 medmnist 
 dvc
+python-dotenv
