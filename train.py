@@ -360,7 +360,7 @@ def run_experiment(trainloader, validloader, testloader):
     return model
 
 
-def push_model_to_hub(model, repo_name):
+def push_model_to_hub(model):
 
     load_dotenv()
     token = os.getenv("HUGGINGFACE_TOKEN")
@@ -368,7 +368,7 @@ def push_model_to_hub(model, repo_name):
         raise ValueError("HUGGINGFACE_TOKEN is not set")
 
     # Push the model to the hub
-    if os.getenv("FF_PUSH_TO_HUB") == "1":
+    if params["push_to_hub"]["feature_flag_push_to_hub"]:
         print("Pushing model to the hub")
         push_to_hub_keras(
             model=model,
@@ -397,4 +397,4 @@ if __name__ == "__main__":
 
     model = run_experiment(trainloader, validloader, testloader)
 
-    push_model_to_hub(model, params["push_to_hub"]["repo_name"])
+    push_model_to_hub(model)

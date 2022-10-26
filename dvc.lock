@@ -4,16 +4,17 @@ stages:
     cmd: python train.py
     deps:
     - path: train.py
-      md5: ccd494d5888294301ca7c04992713ecd
-      size: 12419
+      md5: 05683675c064b5fff634f346f85feec9
+      size: 12387
     params:
       params.yaml:
         common:
           seed: 42
         model:
-          model_path: models/vivit.h5
           num_classes: 11
-        push_to_hub.repo_name: pablorodriper/video-vision_transformer
+        push_to_hub:
+          feature_flag_push_to_hub: false
+          repo_name: pablorodriper/video-vision_transformer
         train:
           epochs: 80
           batch_size: 32
@@ -22,7 +23,7 @@ stages:
           metrics_path: metrics/train.json
     outs:
     - path: metrics/train.json
-      md5: 727f55c740532233b2e09587f7fb6b60
+      md5: 412e550b7e7e4185ffb0f93d235e2396
       size: 80
   push_to_hub:
     cmd: python push_to_hub.py

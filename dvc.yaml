@@ -7,7 +7,7 @@ stages:
       - common
       - model
       - train
-      - push_to_hub.repo_name
+      - push_to_hub
     # outs:
     #   - ${model.model_path}
     metrics:

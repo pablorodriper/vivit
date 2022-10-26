@@ -2,7 +2,7 @@ common:
   seed: 42
 
 model:
-  model_path: models/vivit.h5
+  #model_path: models/vivit.h5
   num_classes: 11
 
 train:
@@ -14,4 +14,5 @@ train:
   #confusion_matrix_path: plots/test_conf_matrix.png
 
 push_to_hub:
+  feature_flag_push_to_hub: False
   repo_name: pablorodriper/video-vision_transformer
