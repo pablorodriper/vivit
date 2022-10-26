@@ -10,7 +10,7 @@ RUN python -m pip install --upgrade pip
 
 RUN pip install -r requirements.txt
 
-ARG USERNAME=pablo
+ARG USERNAME=user
 ARG USER_ID=1000
 ARG USER_GID=$USER_ID
 RUN groupadd --gid $USER_GID $USERNAME \

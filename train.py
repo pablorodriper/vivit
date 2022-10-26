@@ -37,7 +37,10 @@ package, which can be installed by running the code cell below.
 ## Imports
 """
 
+import json
 import os
+
+import dvc.api
 import medmnist
 import numpy as np
 import tensorflow as tf
@@ -346,6 +349,11 @@ def run_experiment(trainloader, validloader, testloader):
     _ = model.fit(trainloader, epochs=EPOCHS, validation_data=validloader)
 
     _, accuracy, top_5_accuracy = model.evaluate(testloader)
+    with open(params["train"]["metrics_path"], 'w') as outfile:
+        json.dump({"Test accuracy": accuracy,
+                   "Test top 5 accuracy": top_5_accuracy}, 
+                  outfile)
+
     print(f"Test accuracy: {round(accuracy * 100, 2)}%")
     print(f"Test top 5 accuracy: {round(top_5_accuracy * 100, 2)}%")
 
