@@ -1,8 +1,7 @@
+transformers==4.23
+huggingface_hub>0.10
+tensorflow
 gradio
-huggingface_hub
-ipython
-jiwer
-matplotlib
-medmnist
-numpy
-pandas
+opencv-python
+medmnist 
+dvc
