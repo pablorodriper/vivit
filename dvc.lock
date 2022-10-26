@@ -1,0 +1,40 @@
+schema: '2.0'
+stages:
+  train:
+    cmd: python train.py
+    deps:
+    - path: train.py
+      md5: ccd494d5888294301ca7c04992713ecd
+      size: 12419
+    params:
+      params.yaml:
+        common:
+          seed: 42
+        model:
+          model_path: models/vivit.h5
+          num_classes: 11
+        push_to_hub.repo_name: pablorodriper/video-vision_transformer
+        train:
+          epochs: 80
+          batch_size: 32
+          learning_rate: 0.0001
+          weight_decay: 1e-05
+          metrics_path: metrics/train.json
+    outs:
+    - path: metrics/train.json
+      md5: 727f55c740532233b2e09587f7fb6b60
+      size: 80
+  push_to_hub:
+    cmd: python push_to_hub.py
+    deps:
+    - path: models/vivit.h5
+      md5: 447249c73d4015b144ef2907e6033833
+      size: 20434736
+    - path: push_to_hub.py
+      md5: 136dccf5cd222a7de1d8267250292475
+      size: 781
+    params:
+      params.yaml:
+        model.model_path: models/vivit.h5
+        push_to_hub:
+          repo_name: pablorodriper/video-vision_transformer
