@@ -368,4 +368,7 @@ if __name__ == "__main__":
 
     model = run_experiment(trainloader, validloader, testloader)
 
+    # Save keras model to disk
+    model.save(params["model"]["model_path"])
+
     #push_to_hub_keras(model, "pablorodriper/vivit")
