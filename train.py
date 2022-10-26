@@ -46,10 +46,9 @@ from tensorflow.keras import layers
 
 from huggingface_hub import push_to_hub_keras
 
-# Setting seed for reproducibility
-SEED = 42
-os.environ["TF_CUDNN_DETERMINISTIC"] = "1"
-keras.utils.set_random_seed(SEED)
+tf.config.experimental.enable_tensor_float_32_execution(False)
+for gpu in tf.config.experimental.list_physical_devices('GPU'):
+    tf.config.experimental.set_memory_growth(gpu, True)
 
 """
 ## Hyperparameters
