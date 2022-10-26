@@ -1,5 +1,7 @@
 # ViViT
 
+**IMPORTANT!!! You need at least 8GB of VRAM to train this model!!!**
+
 Minimal implementation of ViViT: A [Video Vision Transformer](https://arxiv.org/abs/2103.15691) by Arnab et al., a pure Transformer-based model for video classification.
 
 This repo contains the code used to train the [Video Vision Transformer model](https://huggingface.co/keras-io/video-vision-transformer) demo on [Hugging Face Spaces](https://huggingface.co/spaces/keras-io/video-vision-transformer-CT).
